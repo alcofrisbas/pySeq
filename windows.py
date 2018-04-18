@@ -1,12 +1,14 @@
 from Tkinter import *
 import ttk
 
+from slideTest import ENV
+
 """
 
 TODO:::::
 
 - arrow keys to select next slot...
-- restructure canvas for 1 2 3 0
+- restructure canvas for 1 2 3 0 DONE
 
 BUGS:
 
@@ -16,17 +18,19 @@ BUGS:
 
 """
 
-class TimeCanvas(Canvas):
-	def __init__(self, master, arr, arrG, arrP, **kwargs):
+class TimeCanvas(ttk.LabelFrame):
+	def __init__(self, master, **kwargs):
 		#print kwargs
-		self.arr = arr[:]
+		self.arr = []#arr[:]
 		#print "init"
 		#print len(arr)
-		self.arrG = arrG[:]
-		self.arrP = arrP[:]
+		self.arrG = []#arrG[:]
+		self.arrP = []#arrP[:]
 
-		Canvas.__init__(self, master, **kwargs)
-		self.focus_set()
+		ttk.LabelFrame.__init__(self, master, text="Main Control")
+		self.can = Canvas(self, **kwargs)
+		self.can.grid()
+		self.can.focus_set()
 		self.bind("<Button-1>", self.keyOrB1)
 		#self.bind("<MouseWheel>", self.setPitch)
 		#self.bind("<Button-2>", self.setGain)
@@ -78,28 +82,28 @@ class TimeCanvas(Canvas):
 		lArr = len(self.arr)
 		slot =  event.x/(self.WIDTH/lArr)
 		self.curSlot = slot
-		self.delete("{}pitchLabel".format(str(slot)))
+		self.can.delete("{}pitchLabel".format(str(slot)))
 		#shift = event.keycode
 		self.pitch = (self.HEIGHT/2-event.y)/ 3
 		print self.pitch
-		self.create_text(slot*self.WIDTH/lArr+self.WIDTH/lArr/2, 5, text = str(self.pitch), anchor = N, font="Symbol 8", tags=("{}pitchLabel".format(str(slot))))
-		self.create_rectangle(slot*self.WIDTH/lArr+self.WIDTH/lArr/2, event.y+3, slot*self.WIDTH/lArr+self.WIDTH/lArr, event.y-3, tags=("{}pitchLabel".format(str(slot))), fill = "dodgerblue3")
-		self.arr[slot] = self.pitch
+		self.can.create_text(slot*self.WIDTH/lArr+self.WIDTH/lArr/2, 5, text = str(self.pitch), anchor = N, font="Symbol 8", tags=("{}pitchLabel".format(str(slot))))
+		self.can.create_rectangle(slot*self.WIDTH/lArr+self.WIDTH/lArr/2, event.y+3, slot*self.WIDTH/lArr+self.WIDTH/lArr, event.y-3, tags=("{}pitchLabel".format(str(slot))), fill = "dodgerblue3")
+		self.arrP[slot] = self.pitch
 	
 	def toggle(self, event):
 		lArr = len(self.arr)
 		slot =  event.x/(self.WIDTH/lArr)
-		self.delete("{}toggle".format(str(slot)))
+		self.can.delete("{}toggle".format(str(slot)))
 
 		if self.curKey == "a":
-			self.create_rectangle(slot*self.WIDTH/lArr+self.WIDTH/lArr/2, 0, slot*self.WIDTH/lArr+self.WIDTH/lArr, self.HEIGHT/10, tags=("{}toggle".format(str(slot))), fill = "green", width=0)
+			self.can.create_rectangle(slot*self.WIDTH/lArr+self.WIDTH/lArr/2, 0, slot*self.WIDTH/lArr+self.WIDTH/lArr, self.HEIGHT/10, tags=("{}toggle".format(str(slot))), fill = "green", width=0)
 			self.arr[slot] = 1
 		elif self.curKey == "s":
-			self.create_rectangle(slot*self.WIDTH/lArr, 0, slot*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT/10, tags=("{}toggle".format(str(slot))), fill = "red", width=0)
+			self.can.create_rectangle(slot*self.WIDTH/lArr, 0, slot*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT/10, tags=("{}toggle".format(str(slot))), fill = "red", width=0)
 			self.arr[slot] = 2
 		if self.curKey == "d":
-			self.create_rectangle(slot*self.WIDTH/lArr, 0, slot*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT/10, tags=("{}toggle".format(str(slot))), fill = "red", width=0)
-			self.create_rectangle(slot*self.WIDTH/lArr+self.WIDTH/lArr/2, 0, slot*self.WIDTH/lArr+self.WIDTH/lArr, self.HEIGHT/10, tags=("{}toggle".format(str(slot))), fill = "green", width=0)
+			self.can.create_rectangle(slot*self.WIDTH/lArr, 0, slot*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT/10, tags=("{}toggle".format(str(slot))), fill = "red", width=0)
+			self.can.create_rectangle(slot*self.WIDTH/lArr+self.WIDTH/lArr/2, 0, slot*self.WIDTH/lArr+self.WIDTH/lArr, self.HEIGHT/10, tags=("{}toggle".format(str(slot))), fill = "green", width=0)
 			self.arr[slot] = 3
 		if self.curKey == "f":
 			self.arr[slot] = 0
@@ -115,22 +119,22 @@ class TimeCanvas(Canvas):
 		# 	self.arr[slot] = 0
 		# 	self.create_rectangle(slot*self.WIDTH/lArr+1, self.HEIGHT*(1-self.arrG[slot]), slot*self.WIDTH/lArr+self.WIDTH/lArr, self.HEIGHT, fill = "white", width=0)
 		# #print self.arr
-		self.create_text(slot*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT-3, text = str(slot), anchor = S, font="Symbol 8")
+		self.can.create_text(slot*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT-3, text = str(slot), anchor = S, font="Symbol 8")
 
 	def setGain(self, event):
 		lArr = len(self.arr)
 		g = 1-float(event.y)/self.HEIGHT
 		slot =  event.x/(self.WIDTH/lArr)
-		self.create_rectangle(slot*self.WIDTH/lArr+1, 0, slot*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT, fill = "white", width=0)
-		self.create_rectangle(slot*self.WIDTH/lArr+1, event.y, slot*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT, fill = "dodgerblue", width=0)
-		self.create_text(slot*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT-3, text = str(slot), anchor = S, font="Symbol 8")
+		self.can.create_rectangle(slot*self.WIDTH/lArr+1, 0, slot*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT, fill = "white", width=0)
+		self.can.create_rectangle(slot*self.WIDTH/lArr+1, event.y, slot*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT, fill = "dodgerblue", width=0)
+		self.can.create_text(slot*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT-3, text = str(slot), anchor = S, font="Symbol 8")
 		if g < 0.01:
 			g = 0.0
 		self.arrG[slot] = g
-		self.arr[slot] = 1
+		#self.arr[slot] = 1
 	
 	def setupSubs(self):
-		self.delete("all")
+		self.can.delete("all")
 		#self.arr = []
 		lArr = len(self.arr)
 		#print "setup"
@@ -138,12 +142,12 @@ class TimeCanvas(Canvas):
 		for i in range(len(self.arr)):
 			#print "slot",i
 			#self.arr.append(0)
-			self.create_line(i*self.WIDTH/lArr, 0, i*self.WIDTH/lArr, self.HEIGHT)
+			self.can.create_line(i*self.WIDTH/lArr, 0, i*self.WIDTH/lArr, self.HEIGHT)
 			if self.arr[i] == 1 or self.arr[i] == 3:
-				self.create_rectangle(i*self.WIDTH/lArr+self.WIDTH/lArr/2, 0, i*self.WIDTH/lArr+self.WIDTH/lArr, self.HEIGHT/10, tags=("{}toggle".format(str(i))), fill = "green", width=0)
+				self.can.create_rectangle(i*self.WIDTH/lArr+self.WIDTH/lArr/2, 0, i*self.WIDTH/lArr+self.WIDTH/lArr, self.HEIGHT/10, tags=("{}toggle".format(str(i))), fill = "green", width=0)
 			if self.arr[i] == 2 or self.arr[i] or self.arr[i] == 3:
-				self.create_rectangle(i*self.WIDTH/lArr, 0, i*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT/10, tags=("{}toggle".format(str(i))), fill = "red", width=0)
-			self.create_text(i*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT-3, text = str(i), anchor = S, font="Symbol 8")
+				self.can.create_rectangle(i*self.WIDTH/lArr, 0, i*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT/10, tags=("{}toggle".format(str(i))), fill = "red", width=0)
+			self.can.create_text(i*self.WIDTH/lArr+self.WIDTH/lArr/2, self.HEIGHT-3, text = str(i), anchor = S, font="Symbol 8")
 		#print self.arr
 
 
@@ -179,6 +183,81 @@ class BeatBox:
 		self. oY = y
 		self.sizeX = 50
 		self.sizeY = 50
+
+
+class ENV(ttk.LabelFrame):
+	def __init__(self, master, envelope):
+		self.env = envelope
+		self.master = master
+		ttk.LabelFrame.__init__(self, master, text = "Envelope")
+		self.A = ttk.Label(self, text = "A")
+		self.A.grid(row = 0, column = 0)
+
+		self.D = ttk.Label(self, text = "D")
+		self.D.grid(row = 1, column = 0)
+
+		self.S = ttk.Label(self, text = "S")
+		self.S.grid(row = 2, column = 0)
+
+		self.R = ttk.Label(self, text = "R")
+		self.R.grid(row = 3, column = 0)
+
+		self.AE = ttk.Entry(self, width = 4)
+		self.AE.grid(row = 0, column = 1)
+		self.AE.insert(0, self.env[0])
+
+		self.DE = ttk.Entry(self, width = 4)
+		self.DE.grid(row = 1, column = 1)
+		self.DE.insert(0, self.env[2])
+
+		self.SE = ttk.Entry(self, width = 4)
+		self.SE.grid(row = 2, column = 1)
+		self.SE.insert(0, self.env[4])
+
+		self.RE = ttk.Entry(self, width = 4)
+		self.RE.grid(row = 3, column = 1)
+		self.RE.insert(0, self.env[5])
+
+		self.AVal = StringVar()
+		self.ABox = ttk.Combobox(self, textvariable=self.AVal, width = 10)
+		self.ABox['values'] = ("ms","second")
+		self.AVal.set(self.env[1])
+		#self.ABox.current(0)
+		self.ABox.grid(row = 0, column = 2)
+
+		self.DVal = StringVar()
+		self.DBox = ttk.Combobox(self, textvariable=self.DVal, width = 10)
+		self.DBox['values'] = ("ms","second")
+		self.DVal.set(self.env[3])
+		self.DBox.grid(row = 1, column = 2)
+
+		self.RVal = StringVar()
+		self.RBox = ttk.Combobox(self, textvariable=self.RVal, width = 10)
+		self.RBox['values'] = ("ms","second")
+		#self.RBox.current(0)
+		self.RVal.set(self.env[6])
+		self.RBox.grid(row = 3, column = 2)
+
+	def get(self):
+		return [self.AE.get(), self.AVal.get(), self.DE.get(), self.DVal.get(), self.SE.get(), self.RE.get(), self.RVal.get()]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class CueWindow(Toplevel):
 	def __init__(self, master, instrument, can):
@@ -217,7 +296,7 @@ class CueWindow(Toplevel):
 
 	def setCue(self):
 		self.i.instrument.addCue(self.tEntry.get(), self.timeCan.arr)
-		print self.i.instrument.arr
+		#print self.i.instrument.arr
 		# draw Rect
 		#print len(self.i.instrument.cues)
 		self.can.create_rectangle(self.i.oX+self.i.sizeX+self.i.sizeY, self.i.oY+self.i.sizeY/4*(len(self.i.instrument.cues)-1), self.i.oX+self.i.sizeX+2*self.i.sizeY, self.i.oY+self.i.sizeY/4*(len(self.i.instrument.cues)-1)+self.i.sizeY/5, fill = "white",tags = (self.i.instrument.n, "cue", self.tEntry.get()))
@@ -267,48 +346,57 @@ class OptionWindow(Toplevel):
 
 		self.destroy()
 
-class BeatWindow(Toplevel):
-	def __init__(self, master, beat, oX, oY, can, beatDict):
-		self.can = can
-		self.beat = beat
-		self.oX = oX
-		self.oY = oY
-		self.beats = beatDict
-		Toplevel.__init__(self)
+class BeatWindow(ttk.LabelFrame):
+	def __init__(self, master,beat = None):
+		#self.can = can
+		#self.beat = beat
+		#self.oX = oX
+		#self.oY = oY
+		#self.beats = beatDict
+		self.master = master
+		ttk.LabelFrame.__init__(self, self.master, text = "Beat Control")
 
 		#self.master = master
-		self.title("configure beat")
+		#self.title("configure beat")
 
 		self.mainFrame = ttk.Frame(self)
 		self.mainFrame.grid()
 
 		self.nEntry = ttk.Entry(self.mainFrame)
 		self.nEntry.grid(row = 0, column = 0, columnspan = 2)
-		self.nEntry.insert(0, self.beat.n)
+		
 
 		self.tLabel = ttk.Label(self.mainFrame, text = "tempo")
 		self.tLabel.grid(row = 1, column = 0)
 
 		self.tEntry = ttk.Entry(self.mainFrame, width = 6)
 		self.tEntry.grid(row = 1, column = 1)
-		self.tEntry.insert(0, self.beat.t)
+		
 		
 		self.lLabel = ttk.Label(self.mainFrame, text = "number of\n ticks")
 		self.lLabel.grid(row = 2, column = 0)
 
 		self.lEntry = ttk.Entry(self.mainFrame, width = 6)
 		self.lEntry.grid(row = 2, column = 1)
-		self.lEntry.insert(0, self.beat.l)
+		
 
 		self.sLabel = ttk.Label(self.mainFrame, text = "ticks per beat")
 		self.sLabel.grid(row = 3, column = 0)
 
 		self.sEntry = ttk.Entry(self.mainFrame, width = 6)
 		self.sEntry.grid(row = 3, column = 1)
-		self.sEntry.insert(0, self.beat.s)
+		
 
 		self.goButton = ttk.Button(self.mainFrame, text = "set", command = self.setBeat)
 		self.goButton.grid(row = 4, column = 0, columnspan = 2, sticky=EW)
+	
+	def populate(self):
+		self.nEntry.insert(0, self.beat.n)
+		self.tEntry.insert(0, self.beat.t)
+		self.lEntry.insert(0, self.beat.l)
+		self.sEntry.insert(0, self.beat.s)
+
+
 	def setBeat(self):
 		self.beat.t = int(self.tEntry.get())
 		self.beat.l = int(self.lEntry.get())
@@ -316,40 +404,44 @@ class BeatWindow(Toplevel):
 		self.beat.s = int(self.sEntry.get())
 
 		b = BeatBox(self.beat, self.oX, self.oY)
-		print "BEATWINDOW:\n"+str(self.oX), str(self.oY)
+		#print "BEATWINDOW:\n"+str(self.oX), str(self.oY)
 		self.can.create_rectangle(b.oX, b.oY, b.oX+b.sizeX, b.oY+b.sizeY, fill = "white", tags=(self.nEntry.get(), "beat"))
 		self.can.create_text(b.oX+1, b.oY+1, text=b.beat.n, anchor=NW, font ="Symbol 7", width=b.sizeX, tags=(self.nEntry.get(), "beat"))
 		self.beats[self.nEntry.get()] = b
 		#print self.beat.t
-		print self.beats
-		self.destroy()
-# A toplevel window for configuring an instrument in a beat
-class InstWindow(Toplevel):
-	def __init__(self, master, can, originX, originY, instrumentDict, beatDict, lineX, lineY, instrument):
-		self.can = can
-		self.iDict = instrumentDict
-		self.bDict = beatDict
-		self.oX = originX
-		self.oY = originY
-		self.lineX = lineX
-		self.lineY = lineY
-		self.i = instrument
+		#print self.beats
 
-		self.labelSubs = StringVar()
-		self.labelSubs.set(str(16))
-		self.arr = []
+
+
+# A toplevel window for configuring an instrument in a beat
+class InstWindow(ttk.LabelFrame):
+	def __init__(self, master, can, i=None):
+		self.can = can
+		self.master = master
+		#self.iDict = instrumentDict
+		#self.bDict = beatDict
+		#self.oX = originX
+		#self.oY = originY
+		#self.lineX = lineX
+		#self.lineY = lineY
+		#elf.i = instrument
+
+		#self.labelSubs = StringVar()
+		#self.labelSubs.set(str(16))
+		#self.arr = []
 		
 		self.WIDTH = 600
 		self.HEIGHT = 200
 
-		Toplevel.__init__(self)
+		ttk.LabelFrame.__init__(self, self.master)
 		self.mainFrame = ttk.Frame(self)
 		self.mainFrame.grid()
 		
 		self.upperFrame = ttk.Frame(self.mainFrame)
 		self.upperFrame.grid(row = 0, column = 0)
 		##### FILLER ARRAYS
-		self.timeCan = TimeCanvas(self.upperFrame, self.i.arr, self.i.arrG, self.i.arrP, width = self.WIDTH, height = self.HEIGHT)
+		#self.timeCan = TimeCanvas(self.upperFrame, self.i.arr, self.i.arrG, self.i.arrP, width = self.WIDTH, height = self.HEIGHT)
+		self.timeCan = TimeCanvas(self.upperFrame, [], [], [], width = self.WIDTH, height = self.HEIGHT)
 		self.timeCan.grid(row = 0, column = 0)
 		
 
@@ -365,37 +457,51 @@ class InstWindow(Toplevel):
 		self.delButton = ttk.Button(self.PMFrame, text = "Delete", command = self.delete)
 		self.delButton.grid(row = 3, column = 0, sticky = S)
 
+		self.envelope = ENV(self.PMFrame, [0, "ms", 0, "ms", 1, 0, "ms"])
+		self.envelope.grid(row = 4)
+
 		self.lowerFrame = ttk.Frame(self.mainFrame)
 		self.lowerFrame.grid(row = 1, column = 0, sticky = W)
 
 		self.tName = ttk.Entry(self.lowerFrame, width = 10)
 		self.tName.grid(row = 0, column = 0)
-		self.tName.insert(0, self.i.n)
 
 		self.tSource = ttk.Entry(self.lowerFrame)
 		self.tSource.grid(row = 0, column = 1)
 
 		source = "track_source"
-		if self.iDict.get(self.i.n):
-			source = self.iDict[self.i.n].instrument.source
+		#if self.iDict.get(self.i.n):
+		#	source = self.iDict[self.i.n].instrument.source
 
-		self.tSource.insert(0, source)
+		
 
 		self.boxVal = StringVar()
 		self.lBox = ttk.Combobox(self.lowerFrame, textvariable=self.boxVal, width = 10)
 		self.lBox['values'] = ("sample","beat", "osc")
-		self.lBox.current(0)
+		#self.lBox.current("osc")
 		self.lBox.grid(row = 0, column = 2)
 
 		self.goButton = ttk.Button(self.lowerFrame, text = "Make", command = self.make)
 		self.goButton.grid(row = 0, column = 3)
 
+		self.bind("e",self.edit)
+
 		#self.timeCan.setupSubs()
 
+	def populate(self):
+		self.tName.insert(0, self.i.n)
+		self.tSource.insert(0, source)
+
 	def delete(self):
-		del self.iDict[self.i.n]
+		try:
+			del self.iDict[self.i.n]
+		except KeyError:
+			pass
 		self.can.delete(self.i.n)
-		self.destroy()
+		#self.destroy()
+
+	def edit(self, event):
+		self.timeCan.focus_set()
 
 	def make(self):
 		#i = Instrument(self.tName.get(), source=self.tSource.get())
@@ -403,26 +509,29 @@ class InstWindow(Toplevel):
 		self.i.n = self.tName.get()
 		self.i.source = self.tSource.get()
 		self.i.t = self.boxVal.get()
-		print self.i.t
-		self.i.setArray(self.timeCan.arr, self.timeCan.arrG)
+		self.i.env = self.envelope.get()
+		#print self.i.env
+
+		#print self.i.t
+		self.i.setArray(self.timeCan.arr, self.timeCan.arrG, self.timeCan.arrP)
 		b = Box(self.i, self.oX, self.oY)
 		self.iDict[self.i.n] = b
 		#self.can.delete("line&&{}".format(self.tName.get()))
 
-		print b.oX, b.oY, b.oX+b.sizeX, b.oY+b.sizeY
+		#print b.oX, b.oY, b.oX+b.sizeX, b.oY+b.sizeY
 		self.can.create_line(self.lineX, self.lineY, self.oX, self.oY, tags=(self.tName.get(), "instrument", "line"))
 		self.can.create_rectangle(b.oX, b.oY, b.oX+b.sizeX, b.oY+b.sizeY, fill = "white", tags=(self.tName.get(), "instrument"))
 		self.can.create_text(b.oX+1, b.oY+1, text=b.instrument.n, anchor=NW, font ="Symbol 7", width=b.sizeX, tags=(self.tName.get(), "instrument"))
 		if self.i.t == "beat" and not self.i.connected:
 			self.i.connected = True
 			if self.bDict.get(self.tSource.get(), False):
-				print self.bDict[self.tSource.get()].oX, self.bDict[self.tSource.get()].oX
+				#print self.bDict[self.tSource.get()].oX, self.bDict[self.tSource.get()].oX
 				self.can.create_line(b.oX+b.sizeX, b.oY+b.sizeY, self.bDict[self.tSource.get()].oX, self.bDict[self.tSource.get()].oY, dash=(3,), tags=("line"))
 		#for j, k in enumerate(self.i.arr):
 		#	if k == 1:
 		#		self.can.create_line(b.oX+1+j*2, b.oY+b.sizeY-3,b.oX+1+j*2, b.oY+b.sizeY,tags=(self.tName.get(), "instrument"))
 		self.can.tag_lower("line")
-		self.destroy()
+		#self.destroy()
 
 #### LATER!!!!!!!!!!!
 

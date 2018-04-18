@@ -14,10 +14,10 @@ TODO LATER::::
 
 - BUGS:
 	- it's all fucking buggy
-	- prevent people from same name tracks and beats 
-		- hard because Editing is identical to creating...
+	- ***prevent people from same name tracks and beats 
+		- hard because Editing is identical to creating... 
 
-	- extra line drawn from instrument to selected beat
+	- ***extra line drawn from instrument to selected beat
 	  on edit(not creation)
 """
 
@@ -68,6 +68,50 @@ class GUI:
 		self.goButton = ttk.Button(self.buttonFrame, text = "Write to ChucK", command = self.makeBeat)
 		self.goButton.grid(row = 1, column = 0, sticky = EW)
 
+		self.panelFrame = ttk.Frame(self.mainFrame)
+		self.panelFrame.grid(row = 0, column = 1, sticky=N)
+
+		self.timeCan = TimeCanvas(self.panelFrame, width=500, height=200)
+		self.timeCan.grid(row = 0, column = 0)
+
+		self.row1 = ttk.Frame(self.panelFrame)
+		self.row1.grid(row = 1, column = 0, sticky = NW)
+
+		self.pButton = ttk.Button(self.row1, text = "+", width = 0)
+		self.pButton.grid(row  = 0, column = 0)
+		self.mButton = ttk.Button(self.row1, text = "-", width = 0)
+		self.mButton.grid(row = 0, column = 1)
+
+		self.delButton = ttk.Button(self.row1, text = "Delete", width = 0)
+		self.delButton.grid(row = 0, column = 5)
+
+		self.goButton = ttk.Button(self.row1, text = "Make", width = 0)
+		self.goButton.grid(row = 0, column = 6)
+
+		self.tName = ttk.Entry(self.row1, width = 10)
+		self.tName.grid(row = 0, column = 2)
+
+		self.tSource = ttk.Entry(self.row1, width = 10)
+		self.tSource.grid(row = 0, column = 3)
+
+		self.row2 = ttk.Frame(self.panelFrame)
+		self.row2.grid(row = 2, column = 0, sticky = NW)
+
+		self.boxVal = StringVar()
+		self.lBox = ttk.Combobox(self.row1, textvariable=self.boxVal, width = 10)
+		self.lBox['values'] = ("sample","beat", "osc")
+		#self.lBox.current("osc")
+		self.lBox.grid(row = 0, column = 4)
+		
+		self.env = ENV(self.row2, [0, "ms", 0, "ms", 1, 0, "ms"])
+		self.env.grid(row = 0, column = 0, sticky = NW)
+
+		self.bFrame = BeatWindow(self.row2, self.can)
+		self.bFrame.grid(row = 0, column = 1, sticky = NW)
+
+		self.cueB = ttk.Button(self.row2, text = "Add Cue")
+		self.cueB.grid(row = 0, column = 2, sticky = N)
+
 		# ----------------------------------------
 
 		self.instruments = {}
@@ -87,7 +131,8 @@ class GUI:
 			self.b1Pressed = True
 
 		if self.b1Pressed and self.keyPressed:
-			print "BOTH DOWN"
+			#print "BOTH DOWN"
+			pass
 		elif self.b1Pressed:
 			self.createBeat(event)
 	
@@ -97,7 +142,8 @@ class GUI:
 		self.b1Pressed = False
 
 	def aPressed(self,event):
-		print 'mustafa'
+		#print 'mustafa'
+		pass
 
 	def createBeat(self, event):
 		tags = list(self.can.gettags(event.widget.find_closest(event.x, event.y)))
@@ -121,7 +167,7 @@ class GUI:
 			tags.remove("current")
 			tags.remove("beat")
 			self.selectedBeat = tags[0]
-			print self.selectedBeat
+			#print self.selectedBeat
 
 	def inst1(self, event):
 		tags = list(self.can.gettags(event.widget.find_closest(event.x, event.y)))
@@ -131,7 +177,7 @@ class GUI:
 		InstWindow(self, self.can, inst.oX, inst.oY, self.instruments, self.beats, 60, 60, inst.instrument)
 	
 	def inst2(self, event):
-		print "via Inst2"
+		#print "via Inst2"
 		tags = list(self.can.gettags(event.widget.find_closest(event.x, event.y)))
 		tags.remove("current")
 		tags.remove("instrument")
@@ -160,7 +206,8 @@ class GUI:
 			self.can.itemconfig(i, fill=theFill)
 
 	def option(self, event):
-		print "option"
+		#print "option"
+		pass
 
 	def setupBeat(self):
 		self.oX = 10
@@ -175,8 +222,8 @@ class GUI:
 
 		if "current" not in tags:
 			i = Instrument("track_name", "track_source", self.beats[self.selectedBeat].beat)
-			print "via mouse2"
-			print len(i.arr)
+			#print "via mouse2"
+			#print len(i.arr)
 			pX = self.beats[self.selectedBeat].oX+self.beats[self.selectedBeat].sizeX
 			pY = self.beats[self.selectedBeat].oY+self.beats[self.selectedBeat].sizeY
 			InstWindow(self, self.can, event.x, event.y, self.instruments, self.beats, pX, pY, i)
